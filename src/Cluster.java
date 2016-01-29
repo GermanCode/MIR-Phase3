@@ -17,10 +17,9 @@ public class Cluster {
 	}
 	
 	public void setPosting(){
-		if (posting != null)
-			return;
 		posting = new Posting();
 		for (Point point: points)
-			posting.merge(point.d.posting);
+			posting.merge(point.d.posting, 1);
 	}
 }
+

@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import javax.print.Doc;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -45,6 +46,9 @@ public class UI {
 	public static JButton pageRankButton = new JButton();
 	
 	public static ArrayList<Document> docs;
+	public static ArrayList<Point> pointDocs;
+	public static Indexer indexer;
+	public static ArrayList<Cluster> cluster;
 	
 	public static JPanel addOneRow (String label, JTextField field, JButton button, String buttonLabel){
 		JPanel panel = new JPanel();
@@ -120,13 +124,49 @@ public class UI {
 					firstLine = false;
 				}
 				sc.close();
-				System.err.println(json);
-				docs.add(gson.fromJson(json, Document.class));
+				try{
+					Document d = gson.fromJson(json, Document.class);
+					if (d != null)
+						docs.add(d);
+				}catch (Exception e){
+					System.err.println("Failed");
+				}
+				if (counter > 1000)
+					break;
 			}
 			
 		}catch (Exception e){
 			e.printStackTrace();
 		}
+		indexer = new Indexer();
+		System.err.println("Begin building invert index...");
+//		for (Document d: docs){
+//			indexer.addDoc(d);
+//			for (cite c: d.cited_in){
+//				for (Document d2: docs) 
+//					if (d2.id.equals(c.id))
+//						d2.referenceId.add(d.id);
+//			}
+//		}
+		int counter = 0;
+		for (Document d: docs){
+			indexer.addDoc(d);
+			for (String ref: d.reference){
+				int pnt = ref.lastIndexOf("/");
+				String id = "";
+				pnt++;
+				while (ref.charAt(pnt) != '_'){
+					id+= ref.charAt(pnt);
+					pnt++;
+				}
+				d.referenceId.add(id);;
+			}
+			counter++;
+			System.err.println(counter + "/" + docs.size());
+		}
+		System.err.println("finished building invert index.");
+		pointDocs = indexer.getPoints();
+		System.err.println(UI.pointDocs);
 	}
 	
     public static void main(String[] args) {
@@ -205,9 +245,29 @@ public class UI {
     	panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
     	panel.add(addOneRow("k", kmeansKField, null, null));
     	panel.add(addOneRow("threshold", kmeansThresholdField, clusterButton, "Cluster"));
+    	final JLabel ali = new JLabel();
+    	ali.setText(" ");
+    	panel.add(ali);
     	panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createTitledBorder("Clustering (Kmeans)"),
                 BorderFactory.createEmptyBorder()));
+    	clusterButton.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				int k = Integer.parseInt(kmeansKField.getText());
+				double threshold = Double.parseDouble(kmeansThresholdField.getText());
+				Kmeans kmeans = new Kmeans();
+				kmeans.k = k;
+				kmeans.threshold = threshold;
+				kmeans.points = UI.pointDocs;
+				kmeans.metric = new CosineMetric();
+				UI.cluster = new ArrayList<Cluster>();
+				kmeans.ret = UI.cluster;
+				kmeans.start();
+				new Thread(new Progress(kmeans, ali)).start();
+				System.err.println(UI.cluster.size());
+			}
+		});
     	return panel;
     }
     
@@ -216,9 +276,25 @@ public class UI {
     	panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
     	panel.add(addOneRow("alpha", pageRankAlphaField, null, null));
     	panel.add(addOneRow("threshold", pageRankThresholdField, pageRankButton, "Go!"));
+    	final JLabel ali = new JLabel();
+    	ali.setText(" ");
+    	panel.add(ali);
     	panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createTitledBorder("Page Rank"),
                 BorderFactory.createEmptyBorder()));
+    	pageRankButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				double alpha = Double.parseDouble(pageRankAlphaField.getText());
+				double threshold = Double.parseDouble(pageRankThresholdField.getText());
+				PageRank ranker = new PageRank();
+				ranker.alpha = alpha;
+				ranker.threshold = threshold;
+				ranker.docs = UI.docs;
+				ranker.start();
+				new Thread(new Progress(ranker, ali)).start();
+			}
+		});
     	return panel;    	
     }
     

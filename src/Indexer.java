@@ -11,7 +11,7 @@ public class Indexer {
 	public ArrayList<Document> docs = new ArrayList<Document>();
 	
 	public void addDoc (Document d){
-		Tokenizer tokenizer = new Tokenizer(d.title, TokenizationMode.Query);
+		Tokenizer tokenizer = new Tokenizer(d._abstract, TokenizationMode.Query);
 		while (true){
 			String term = tokenizer.nextToken();
 			if (term.equals("$") == true)
@@ -32,13 +32,16 @@ public class Indexer {
 		for (Document doc: docs){
 			Point point = new Point();
 			point.d = doc;
+			point.coords = new TreeMap<String, Double>();
 			for (Map.Entry<String, Integer> termCnt: doc.posting.count.entrySet()){
 				double tf = Math.log10(termCnt.getValue() + 1);
 				double idf= Math.log10((double)numberOfDocs/(double)df.get(termCnt.getKey()));
 				point.coords.put(termCnt.getKey(), tf*idf);
 			}
 			point.normalize();
+			points.add(point);
 		}
 		return points;
 	}
 }
+

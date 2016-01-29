@@ -6,13 +6,13 @@ import java.util.TreeMap;
 public class Point {
 	
 	public Document d;
-	public Map<String, Double> coords = null;
+	public Map<String, Double> coords = new TreeMap<String, Double>();
 	
 	public Point () {}
 	
 	public Point (Point point){
 		this.coords = new TreeMap<String,Double>();
-		for (Map.Entry<String, Double> x: coords.entrySet())
+		for (Map.Entry<String, Double> x: point.coords.entrySet())
 			this.coords.put(x.getKey(), x.getValue());
 	}
 	

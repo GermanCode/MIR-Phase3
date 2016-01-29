@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 
 public class Document implements Comparable<Document>{
 	public String id;
@@ -5,7 +7,8 @@ public class Document implements Comparable<Document>{
 	public String _abstract;
 	public String[] authors;
 	public cite[] cited_in;
-	public cite[] references;
+	public String[] reference;
+	public transient ArrayList<String> referenceId = new ArrayList<String>();
 	public transient double pageRank = -1.0;
 	public transient Posting posting = new Posting();
 	
