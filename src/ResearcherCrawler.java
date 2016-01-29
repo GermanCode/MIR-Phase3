@@ -134,6 +134,7 @@ public class ResearcherCrawler extends Thread
 				clusters.get(f).add(p);
 			clusters.remove(s);
 		}
+		System.out.println();
 		for (int i=0;i<clusters.size();i++)
 		{
 			System.out.print("{");
@@ -145,7 +146,7 @@ public class ResearcherCrawler extends Thread
 				first=false;
 				System.out.print(p);
 			}
-			System.out.println();
+			System.out.println("}");
 		}
 	}
 
@@ -221,7 +222,7 @@ public class ResearcherCrawler extends Thread
 	}
 	public static void main(String[] args) throws IOException
 	{
-		ResearcherCrawler crawler=new ResearcherCrawler(5,4.,new ArrayList<String>(Arrays.asList("http://www.researchgate.net/researcher/8159937_Zoubin_Ghahramani/")));
+		ResearcherCrawler crawler=new ResearcherCrawler(100,4.,new ArrayList<String>(Arrays.asList("http://www.researchgate.net/researcher/8159937_Zoubin_Ghahramani/")));
 		crawler.start();
 	}
 }
