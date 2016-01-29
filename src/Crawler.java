@@ -164,8 +164,15 @@ public class Crawler extends Thread
 		for (Element e:authors)
 			array.add(new JsonPrimitive(e.text()));
 		jsonObject.add("authors", array);
-		jsonObject.addProperty("_abstract", d.select(".pub-abstract>div>div,.publication-abstract-text").size() == 0 ? "" : d.select(".pub-abstract>div>div,.publication-abstract-text").get(0).text());
+		jsonObject.addProperty("_abstract", d.select(".pub-abstract>div>div,.publication-abstract-text").size() == 0 ? "" : fix(d.select(".pub-abstract>div>div,.publication-abstract-text").get(0).text()));
 		return jsonObject;
+	}
+
+	private String fix(String text)
+	{
+		if (text.substring(0,8).equals("ABSTRACT"))
+			return text.substring(9);
+		return text;
 	}
 
 	private ArrayList<String> getJson(String s)
