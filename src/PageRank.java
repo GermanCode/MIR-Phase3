@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
-
 public class PageRank implements Progressable{
 	
 	static int MAX_ITER = 100;
@@ -87,3 +85,4 @@ public class PageRank implements Progressable{
 		return "iter=" + iter + ", " + "diff with inital=" + diff;
 	}
 }
+

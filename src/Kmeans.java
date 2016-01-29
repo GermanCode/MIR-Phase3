@@ -1,17 +1,25 @@
 import java.util.ArrayList;
 
-public class Kmeans {
+public class Kmeans implements Progressable{
+	
+	static int MAX_ITER = 100;
 	
 	public ArrayList<Point> points;
 	public int k;
+	public int iter;
 	public Metric metric;
+	public double threshold;
+	public boolean terminated = true;
 	
 	public ArrayList<Cluster> run(){
+		this.terminated = false;
 		int[] cluster = new int[points.size()];
 		Point[] center = new Point[k];
 		int[] count = new int[k];
 		for (int i=0; i<k; i++)
 			center[i] = new Point(points.get(i));
+		double prevDist = 1e10;
+		this.iter = 0;
 		while (true){
 			for (int i=0; i<points.size(); i++){
 				cluster[i] = 0;
@@ -34,8 +42,14 @@ public class Kmeans {
 					center[i].multTo(1.0/count[i]);
 				else
 					center[i].zero();
-			if (k < points.size())
+			double totalDist = 0;
+			for (int i=0; i<points.size(); i++)
+				totalDist += metric.dist(center[cluster[i]], points.get(i));
+			if (Math.abs(totalDist - prevDist) < this.threshold)
 				break;
+			this.iter++;
+			prevDist = totalDist;
+			
 		}
 		ArrayList<Cluster> ret = new ArrayList<Cluster>();
 		for (int i=0; i<k; i++) if (count[i] != 0){
@@ -44,6 +58,15 @@ public class Kmeans {
 				c.addPoint(points.get(j));
 			ret.add(c);
 		}
+		terminated = true;
 		return ret;
 	}
+	
+	@Override
+	public String getProgress() {
+		if (terminated)
+			return null;
+		return "(kmeans) iter=" + this.iter; 
+	}
 }
+

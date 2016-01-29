@@ -2,7 +2,9 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -11,6 +13,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
+import com.google.gson.Gson;
 
 
 public class UI {
@@ -22,8 +26,7 @@ public class UI {
 	public static int FIELD_WIDTH = 400;
 	public static int BUTTON_WIDTH= 80;
 	public static int ROW_HEIGHT = 24;
-	public static int GAP_HEIGHT = 10;
-	
+	public static int GAP_HEIGHT = 10;	
 	
 	public static JTextField indegreeField = new JTextField();
 	public static JTextField outdegreeField = new JTextField();
@@ -33,6 +36,15 @@ public class UI {
 	public static JButton crawlButton = new JButton();
 	public static ArrayList<String> urls = new ArrayList<String>();
 	
+	public static JTextField kmeansKField = new JTextField();
+	public static JTextField kmeansThresholdField = new JTextField();
+	public static JButton clusterButton = new JButton();
+	
+	public static JTextField pageRankAlphaField = new JTextField();
+	public static JTextField pageRankThresholdField = new JTextField();
+	public static JButton pageRankButton = new JButton();
+	
+	public static ArrayList<Document> docs;
 	
 	public static JPanel addOneRow (String label, JTextField field, JButton button, String buttonLabel){
 		JPanel panel = new JPanel();
@@ -86,13 +98,49 @@ public class UI {
 		return panel;
 	}
 	
+	public static void loadAllDocs (){
+		docs = new ArrayList<Document>();
+		try{
+			File dir = new File("Documents");
+			if (dir.isDirectory() == false)
+				return;
+			Gson gson = new Gson();
+			int counter = 0;
+			File[] files = dir.listFiles();
+			for (File file: files){
+				counter++;
+				System.err.println("processing " + counter + "/" + files.length + " : " + file.getPath());
+				String json = "";
+				Scanner sc = new Scanner(file);
+				boolean firstLine = true;
+				while (sc.hasNext()){
+					if (firstLine == false)
+						json+= "\n";
+					json+= sc.nextLine();
+					firstLine = false;
+				}
+				sc.close();
+				System.err.println(json);
+				docs.add(gson.fromJson(json, Document.class));
+			}
+			
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+	
     public static void main(String[] args) {
+    	loadAllDocs();
     	JFrame frame = new JFrame();
     	frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
     	frame.getContentPane().add(getGap());
     	frame.getContentPane().add(getCrawlingPanel());
     	frame.getContentPane().add(getGap());
     	frame.getContentPane().add(getSearchPanel());
+    	frame.getContentPane().add(getGap());
+    	frame.getContentPane().add(getKmeansPanel());
+    	frame.getContentPane().add(getGap());
+    	frame.getContentPane().add(getPageRankPanels());
     	frame.setPreferredSize(new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
     	frame.setSize(new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
     	frame.setResizable(false);
@@ -108,7 +156,7 @@ public class UI {
     	panel.add(addOneRow("title weight", new JTextField(), null, null));
     	panel.add(addOneRow("abstract weight", new JTextField(), null, null));
     	panel.add(addOneRow("authors weight", new JTextField(), null, null));
-    	panel.add(addOneRow("query", new JTextField(), new JButton(), "search"));
+    	panel.add(addOneRow("query", new JTextField(), new JButton(), "Search"));
     	panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createTitledBorder("Searching"),
                 BorderFactory.createEmptyBorder()));
@@ -151,4 +199,28 @@ public class UI {
 		});
     	return panel;
     }
+    
+    public static JPanel getKmeansPanel (){
+    	JPanel panel = new JPanel(); 
+    	panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+    	panel.add(addOneRow("k", kmeansKField, null, null));
+    	panel.add(addOneRow("threshold", kmeansThresholdField, clusterButton, "Cluster"));
+    	panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder("Clustering (Kmeans)"),
+                BorderFactory.createEmptyBorder()));
+    	return panel;
+    }
+    
+    public static JPanel getPageRankPanels (){
+    	JPanel panel = new JPanel(); 
+    	panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+    	panel.add(addOneRow("alpha", pageRankAlphaField, null, null));
+    	panel.add(addOneRow("threshold", pageRankThresholdField, pageRankButton, "Go!"));
+    	panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder("Page Rank"),
+                BorderFactory.createEmptyBorder()));
+    	return panel;    	
+    }
+    
 }
+

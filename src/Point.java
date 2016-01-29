@@ -55,3 +55,4 @@ public class Point {
 			this.multTo(1.0/norm);
 	}
 }
+

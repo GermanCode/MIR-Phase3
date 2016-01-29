@@ -1,7 +1,3 @@
-import java.io.File;
-import java.util.Scanner;
-
-import com.google.gson.Gson;
 
 public class Document implements Comparable<Document>{
 	public String id;
@@ -47,3 +43,4 @@ class cite{
 	public String id;
 	public String url;
 }
+
