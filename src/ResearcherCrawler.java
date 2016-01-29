@@ -222,7 +222,7 @@ public class ResearcherCrawler extends Thread
 	}
 	public static void main(String[] args) throws IOException
 	{
-		ResearcherCrawler crawler=new ResearcherCrawler(100,1.9,new ArrayList<String>(Arrays.asList("http://www.researchgate.net/researcher/8159937_Zoubin_Ghahramani/")));
+		ResearcherCrawler crawler=new ResearcherCrawler(100,1,new ArrayList<String>(Arrays.asList("http://www.researchgate.net/researcher/8159937_Zoubin_Ghahramani/")));
 		crawler.start();
 	}
 }
