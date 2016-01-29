@@ -121,7 +121,7 @@ public class ResearcherCrawler extends Thread
 			for (int i=0;i<clusters.size();i++)
 				for (int j=i+1;j<clusters.size();j++)
 				{
-					double dis=minDis(clusters.get(i), clusters.get(j));
+					double dis=average(clusters.get(i), clusters.get(j));
 					if (dis>mx)
 					{
 						mx=dis;
@@ -150,12 +150,13 @@ public class ResearcherCrawler extends Thread
 		}
 	}
 
-	private double minDis(ArrayList<Long> first, ArrayList<Long> second)
+	private double average(ArrayList<Long> first, ArrayList<Long> second)
 	{
-		double res=100;
+		double res=0;
 		for (Long f:first)
 			for (Long s:second)
-				res=Math.max(res, common(f, s));
+				res+= common(f, s);
+		res/=first.size()*second.size();
 		return res;
 	}
 
@@ -221,7 +222,7 @@ public class ResearcherCrawler extends Thread
 	}
 	public static void main(String[] args) throws IOException
 	{
-		ResearcherCrawler crawler=new ResearcherCrawler(100,4.,new ArrayList<String>(Arrays.asList("http://www.researchgate.net/researcher/8159937_Zoubin_Ghahramani/")));
+		ResearcherCrawler crawler=new ResearcherCrawler(100,2.5,new ArrayList<String>(Arrays.asList("http://www.researchgate.net/researcher/8159937_Zoubin_Ghahramani/")));
 		crawler.start();
 	}
 }
