@@ -1,15 +1,31 @@
-import com.google.gson.*;
+
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,7 +33,7 @@ import java.util.regex.Pattern;
  * Date: 1/28/16
  * Time: 9:46 PM
  */
-public class Crawler extends Thread
+public class Crawler extends Thread implements Progressable
 {
 	int numberOfDocuments,inDegree,outDegree;
 	ArrayList<String> initUrls;
@@ -67,6 +83,7 @@ public class Crawler extends Thread
 	}
 	public void run()
 	{
+		this.numberOfSavedDocs = 0;
 		queue= new LinkedList<>();
 		mark=new HashSet<>();
 		parsed=new HashSet<>();
@@ -140,8 +157,10 @@ public class Crawler extends Thread
 		}
 	}
 
+	private int numberOfSavedDocs = 0;
 	private void save(JsonObject document, Long id)
 	{
+		this.numberOfSavedDocs++;
 		try
 		{
 			PrintStream out=new PrintStream(new File("Documents/"+id));
@@ -228,9 +247,17 @@ public class Crawler extends Thread
 			return null;
 		return Long.parseLong(m.group(1));
 	}
-	public static void main(String[] args) throws IOException
-	{
-		Crawler crawler=new Crawler(new ArrayList<String>(Arrays.asList("http://www.researchgate.net/researcher/8159937_Zoubin_Ghahramani")));
-		crawler.start();
+	
+	@Override
+	public String getProgress() {
+		if (this.numberOfDocuments <= 0)
+			return "100%";
+		return ((Long)Math.round((double)numberOfSavedDocs/numberOfDocuments * 100.0)).toString() + "%";
 	}
+//	public static void main(String[] args) throws IOException
+//	{
+//		Crawler crawler=new Crawler(new ArrayList<String>(Arrays.asList("http://www.researchgate.net/researcher/8159937_Zoubin_Ghahramani")));
+//		crawler.start();
+//	}
 }
+
