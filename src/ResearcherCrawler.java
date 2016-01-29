@@ -121,7 +121,7 @@ public class ResearcherCrawler extends Thread
 			for (int i=0;i<clusters.size();i++)
 				for (int j=i+1;j<clusters.size();j++)
 				{
-					double dis=average(clusters.get(i),clusters.get(j));
+					double dis=mindis(clusters.get(i), clusters.get(j));
 					if (dis>mx)
 					{
 						mx=dis;
@@ -150,14 +150,13 @@ public class ResearcherCrawler extends Thread
 		}
 	}
 
-	private double average(ArrayList<Long> first, ArrayList<Long> second)
+	private double mindis(ArrayList<Long> first, ArrayList<Long> second)
 	{
-		double sum=0;
+		double res=100;
 		for (Long f:first)
 			for (Long s:second)
-				sum+=common(f,s);
-		sum/=first.size()*second.size();
-		return sum;
+				res=Math.min(res, common(f, s));
+		return res;
 	}
 
 	private double common(Long f, Long s)
@@ -177,6 +176,7 @@ public class ResearcherCrawler extends Thread
 			url=url+"/";
 		for (int i=1;i<=20;i++)
 		{
+			System.err.println(url+"publications/"+i);
 			Document d=get(url+"publications/"+i);
 			int count=0;
 			ArrayList<String> others=getLinks(d,"researcher");
