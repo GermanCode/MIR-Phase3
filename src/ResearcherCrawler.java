@@ -176,7 +176,6 @@ public class ResearcherCrawler extends Thread
 			url=url+"/";
 		for (int i=1;i<=20;i++)
 		{
-			System.err.println(url+"publications/"+i);
 			Document d=get(url+"publications/"+i);
 			int count=0;
 			ArrayList<String> others=getLinks(d,"researcher");
