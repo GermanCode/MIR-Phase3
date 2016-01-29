@@ -82,6 +82,7 @@ public class Crawler extends Thread
 				{
 					Long id=getID(now);
 					JsonObject document=parse(d, id);
+					document.addProperty("url",now);
 					ArrayList<String> cited_in=getJson("https://www.researchgate.net/publicliterature.PublicationIncomingCitationsList.html?publicationUid=" + id + "&showCitationsSorter=true&showAbstract=true&showType=true&showPublicationPreview=true&swapJournalAndAuthorPositions=false&limit=100000");
 					JsonArray cited=new JsonArray();
 					for (String s:cited_in)
