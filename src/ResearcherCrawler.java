@@ -121,7 +121,7 @@ public class ResearcherCrawler extends Thread
 			for (int i=0;i<clusters.size();i++)
 				for (int j=i+1;j<clusters.size();j++)
 				{
-					double dis=mindis(clusters.get(i), clusters.get(j));
+					double dis=minDis(clusters.get(i), clusters.get(j));
 					if (dis>mx)
 					{
 						mx=dis;
@@ -150,12 +150,12 @@ public class ResearcherCrawler extends Thread
 		}
 	}
 
-	private double mindis(ArrayList<Long> first, ArrayList<Long> second)
+	private double minDis(ArrayList<Long> first, ArrayList<Long> second)
 	{
 		double res=100;
 		for (Long f:first)
 			for (Long s:second)
-				res=Math.min(res, common(f, s));
+				res=Math.max(res, common(f, s));
 		return res;
 	}
 
